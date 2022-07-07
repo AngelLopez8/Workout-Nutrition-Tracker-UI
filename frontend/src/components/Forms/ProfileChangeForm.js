@@ -4,57 +4,54 @@ import { Container, Form, Button, Image } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 
-const ProfileChangeForm = () => {
+import DEFAULT from '../Images/DEFAULT.jpg';
+
+const ProfileChangeForm = ({ user, setLoggedIn, check_if_existing_user }) => {
+    
     const navigate = useNavigate();
 
-    const [ user, setUser ] = useState({});
+    const [ avatar, setAvatar ] = useState('');
+    
     const [ name, setName ] = useState("");
     const [ email, setEmail ] = useState("");
-    const [ age, setAge ] = useState();
-    const [ avatar, setAvatar ] = useState('');
+    const [ age, setAge ] = useState(null);    
     const [ newAvatar, setNewAvatar ] = useState('');
 
     const [ updated, setUpdated ] = useState(false);
     const [ deleteUser, setDeleteUser ] = useState(false);
+    const [ logoutAll, setLogoutAll ] = useState(false);
 
     useEffect( () => {
-        const loggedInUser = window.localStorage.getItem('user');
-        if (loggedInUser) {
-            const data = JSON.parse(loggedInUser);
-            get_user(data.Authorization);
-        } else {
-            navigate('/login', { replace: true});
-        }
-    }, []);
-
-    useEffect( () => {
-        if (user._id && avatar === '') handleAvatar();
+        // if (!check_if_existing_user()) navigate('/login', { replace: true});
+        if (user._id && avatar === "") setAvatar(process.env.REACT_APP_API_URL+`user/me/avatar/${user._id}` || DEFAULT);
     }, [user]);
 
     useEffect( () => {
-        if (updated) navigate('/');
+        if (updated) {
+            update_user();
+            if (newAvatar !== '') update_avatar();
+            setLoggedIn(false);
+            navigate('/', { replace: true});
+        }
     }, [updated])
 
     useEffect( () => {
         if (deleteUser) {
+            window.localStorage.removeItem('Authorization');
             delete_user();
-            navigate('/login');
+            setLoggedIn(false);
+            navigate('/login', { replace: true});
         }
     }, [deleteUser]);
 
-    // Retrieves User Information with proper authentication through GET request
-    const get_user = async (token) => {
-        try {
-            const { data } = await axios.get(process.env.REACT_APP_API_URL+"user/me", {
-                headers: {
-                    Authorization: token
-                }
-            });
-            setUser({...data, Authorization: token});
-        } catch (err) {
-            console.log(err);
+    useEffect( () => {
+        if (logoutAll) {
+            window.localStorage.removeItem('Authorization');
+            logout_all_users();
+            setLoggedIn(false);
+            navigate('/login', { replace: true});
         }
-    };
+    }, [logoutAll]);
 
     const delete_user = async () => {
         try {
@@ -68,41 +65,44 @@ const ProfileChangeForm = () => {
         }
     }
 
-    // Retrieves User Avatar with proper authentication through GET request
-    const handleAvatar = async () => {
+    const logout_all_users = async () => {
         try {
-            await axios.get(process.env.REACT_APP_API_URL+`user/me/avatar/${user._id}`);
-            setAvatar(process.env.REACT_APP_API_URL+`user/me/avatar/${user._id}`);
+            await axios.post(process.env.REACT_APP_API_URL+'user/logout/all', {}, {
+                headers: {
+                    Authorization: user.Authorization
+                }
+            });
         } catch (err) {
-            setAvatar('None');
+            console.log(err);
         }
     }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const update_user = async () => {
         try {
             await axios.patch(process.env.REACT_APP_API_URL+"user/me", {
                 name: name === "" ? user.name : name,
                 email: email === "" ? user.email : email,
-                age: age === "" ? user.age : age
+                age: age === null ? user.age : age
             }, {
                 headers: {
                     Authorization: user.Authorization
                 }
             });
+        } catch (err) {
+            console.log(err);
+        }
+    }
 
-            if (newAvatar !== '') {
-                const data = new FormData();
-                data.append('avatar', newAvatar);
-                
-                await axios.post(process.env.REACT_APP_API_URL+"user/me/avatar", data, {
-                    headers: {
-                        Authorization: user.Authorization
-                    }
-                });
-            }
-
-            setUpdated(true);
+    const update_avatar = async () => {
+        try {
+            const data = new FormData();
+            data.append('avatar', newAvatar);
+            
+            await axios.post(process.env.REACT_APP_API_URL+"user/me/avatar", data, {
+                headers: {
+                    Authorization: user.Authorization
+                }
+            });
         } catch (err) {
             console.log(err);
         }
@@ -115,7 +115,7 @@ const ProfileChangeForm = () => {
                 { avatar !== '' ?
                     <Container className='text-center'><Image src={avatar} thumbnail /></Container> : <></>
                 }
-                <Form onSubmit={handleSubmit}>
+                <Form onSubmit={e => { e.preventDefault(); setUpdated(true); }}>
 
                     <Form.Group className='mb-3' controlId='formAvatar'>
                         <Form.Control type='file' onChange={ e => setNewAvatar(e.target.files[0]) } />
@@ -139,6 +139,8 @@ const ProfileChangeForm = () => {
                         <Button variant="outline-primary" type="submit">Update</Button>
                         {" "}
                         <Button variant='outline-danger' type='button' onClick={ e => { e.preventDefault(); setDeleteUser(true); }}>Delete Account</Button>
+                        {" "}
+                        <Button variant='outline-info' type='button' onClick={ e => { e.preventDefault(); setLogoutAll(true); }}>Logout All</Button>
                         {" "}
                         <Button variant='outline-warning' type='button' onClick={ e => { e.preventDefault(); setUpdated(true); }}>Cancel</Button>      
                     </Container>

@@ -6,53 +6,37 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import axios from 'axios';
 
-import WorkoutForm from './Forms/WorkoutForm';
-
 import DEFAULT from './Images/DEFAULT.jpg';
 
 const DaysOfTheWeek = {
-    0: "Sunday",
-    1: "Monday",
-    2: "Tuesday",
-    3: "Wednesday",
-    4: "Thursday",
-    5: "Friday",
-    6: "Saturday"
+    1: "Sunday",
+    2: "Monday",
+    3: "Tuesday",
+    4: "Wednesday",
+    5: "Thursday",
+    6: "Friday",
+    7: "Saturday"
 };
 
-const HomePage = () => {
+const HomePage = ({ user, setUser, setLoggedIn, check_if_existing_user }) => {
     const navigate = useNavigate();
 
-    const [ user, setUser ] = useState({});
     const [ avatar, setAvatar ] = useState("");
     const [ todaysWorkout, setTodaysWorkout ] = useState({});
 
-    const [ createForm, setCreateForm ] = useState(false);
     const [ profileUpdate, setProfileUpdate ] = useState(false);
     const [ logout, setLogout ] = useState(false);
 
-    /**
-     * Initial Render checks for logged in user.
-     * If user is logged in proceed to render information
-     * else redirect user to login page
-     */
+    // // On Change to Use State
     useEffect( () => {
-        const loggedInUser = window.localStorage.getItem('user');
-        if (loggedInUser) {
-            const data = JSON.parse(loggedInUser);
-            get_user(data.Authorization);
-        } else {
-            navigate('/login', { replace: true});
-        }
-    }, []);
 
-    // On Change to Use State
-    useEffect( () => {
-        // On Change to the User State set the avatar if it exists
-        if (user.Authorization) {
-            if (avatar === "") handleAvatar();
-        }
-        
+        // if (!check_if_existing_user()) {
+        //     console.log("NO USER");
+        //     navigate('/login', { replace: true});
+        // }
+
+        if (user._id && avatar === "") setAvatar(process.env.REACT_APP_API_URL+`user/me/avatar/${user._id}` || DEFAULT);
+            
         // On Change to the User State update today's Workout if exists
         if (user.schedule) {
             const today = new Date();
@@ -70,25 +54,11 @@ const HomePage = () => {
 
     useEffect( () => {
         if (logout) {
-            window.localStorage.removeItem('user');
+            window.localStorage.removeItem('Authorization');
             handle_logout();
             navigate('/login', { replace: true});
         }
     }, [logout])
-
-    // Retrieves User Information with proper authentication through GET request
-    const get_user = async (token) => {
-        try {
-            const { data } = await axios.get(process.env.REACT_APP_API_URL+"user/me", {
-                headers: {
-                    Authorization: token
-                }
-            });
-            setUser({...data, Authorization: token});
-        } catch (err) {
-            console.log(err);
-        }
-    };
 
     // Logs User out and delete's authentication token from database through POST request
     const handle_logout = async () => {
@@ -98,20 +68,12 @@ const HomePage = () => {
                     Authorization: user.Authorization
                 }
             });
+            setUser({});
+            setLoggedIn(false);
         } catch (err) {
             console.log(err);
         }
     };
-
-    // Retrieves User Avatar with proper authentication through GET request
-    const handleAvatar = async () => {
-        try {
-            await axios.get(process.env.REACT_APP_API_URL+`user/me/avatar/${user._id}`);
-            setAvatar(process.env.REACT_APP_API_URL+`user/me/avatar/${user._id}`);
-        } catch (err) {
-            setAvatar(DEFAULT);
-        }
-    }
 
     return (
         <Container>
@@ -149,12 +111,6 @@ const HomePage = () => {
                 </Col>
                 <Col>
                     <h1>Schedule and Progress</h1>
-                    
-                    { createForm ?
-                        <WorkoutForm token={user.Authorization} setCreateForm={setCreateForm} />
-                        :
-                        <Button variant='outline-success' onClick={ e => setCreateForm(true) }>Create</Button>
-                    }
                 </Col>
             </Row>
         </Container>

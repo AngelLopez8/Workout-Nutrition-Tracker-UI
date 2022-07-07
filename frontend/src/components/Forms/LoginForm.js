@@ -4,29 +4,34 @@ import { Container, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 
-const LoginForm = () => {
-    
+const LoginForm = ({ setLoggedIn, setUser, check_if_existing_user}) => {
+
     const navigate = useNavigate();
 
     const [ email, setEmail ] = useState("");
     const [ password, setPassword ] = useState("");
+    const [ login, setLogin ] = useState(false);
 
     useEffect( () => {
-        const loggedInUser = window.localStorage.getItem('user');
-        if (loggedInUser) navigate('/');
-    });
+        if (check_if_existing_user()) {
+            navigate('/', { replace: true});
+        }
+    }, []);
 
-    const login = async () => {
+    useEffect( () => {
+        if (login) {
+            login_user();
+            setLoggedIn(true);
+            navigate('/', { replace: true});
+        }
+    }, [login]);
+
+    const login_user = async () => {
         try {
             const { data } = await axios.post(process.env.REACT_APP_API_URL+"user/login", { email, password });
-            window.localStorage.removeItem('user');
-            window.localStorage.setItem(
-                'user', 
-                JSON.stringify({
-                    Authorization: data.token
-                })
-            );
-            navigate('/');   
+            window.localStorage.removeItem('Authorization');
+            window.localStorage.setItem('Authorization', data.token);
+            setUser({...data.user, Authorization: data.token});
         } catch (err) {
             console.log(err);
         }
@@ -38,7 +43,7 @@ const LoginForm = () => {
                 <h1 className='text-center'>Login</h1>
                 <Form onSubmit={ e => {
                     e.preventDefault();
-                    login();
+                    setLogin(true);
                 }}>
                     <Form.Group className="mb-3" controlId="formBasicEmail">
                         <Form.Label>Email Address</Form.Label>

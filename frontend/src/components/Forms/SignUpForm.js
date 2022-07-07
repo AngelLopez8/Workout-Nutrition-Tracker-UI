@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 
-const SignUpForm = () => {
+const SignUpForm = ({ setLoggedIn, setUser, check_if_existing_user}) => {
 
     const navigate = useNavigate();
     
@@ -14,17 +14,28 @@ const SignUpForm = () => {
     const [ confirm, setConfirm ] = useState("");
     const [ age, setAge ] = useState(undefined);
 
+    const [ signedUp, setSignedUp ] = useState(false);
+
+    useEffect( () => {
+        if (check_if_existing_user()) {
+            navigate('/', { replace: true});
+        }
+    }, []);
+
+    useEffect( () => {
+        if (signedUp) {
+            signUp();
+            setLoggedIn(true);
+            navigate('/', { replace: true});
+        }
+    }, [signedUp]);
+
     const signUp = async () => {
         try {
             const { data } = await axios.post(process.env.REACT_APP_API_URL+"user/", { name, email, password, age });
-            window.localStorage.removeItem('user');
-            window.localStorage.setItem(
-                'user', 
-                JSON.stringify({
-                    Authorization: data.token
-                })
-            );
-            navigate('/'); 
+            window.localStorage.removeItem('Authorization');
+            window.localStorage.setItem('Authorization', data.token);
+            setUser({...data.user, Authorization: data.token});
         } catch (err) {
             console.log(err);
         }
@@ -33,7 +44,7 @@ const SignUpForm = () => {
     const handleSubmit = e => {
         e.preventDefault();
         if (password === confirm) {
-            signUp();
+            setSignedUp(true);
         }
     }
 
