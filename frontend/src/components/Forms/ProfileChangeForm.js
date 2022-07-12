@@ -22,7 +22,6 @@ const ProfileChangeForm = ({ user, setLoggedIn, check_if_existing_user }) => {
     const [ logoutAll, setLogoutAll ] = useState(false);
 
     useEffect( () => {
-        // if (!check_if_existing_user()) navigate('/login', { replace: true});
         if (user._id && avatar === "") setAvatar(process.env.REACT_APP_API_URL+`user/me/avatar/${user._id}` || DEFAULT);
     }, [user]);
 

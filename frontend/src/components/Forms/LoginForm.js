@@ -14,7 +14,7 @@ const LoginForm = ({ setLoggedIn, setUser, check_if_existing_user}) => {
 
     useEffect( () => {
         if (check_if_existing_user()) {
-            navigate('/', { replace: true});
+            navigate('/'); //, { replace: true});
         }
     }, []);
 
@@ -22,7 +22,7 @@ const LoginForm = ({ setLoggedIn, setUser, check_if_existing_user}) => {
         if (login) {
             login_user();
             setLoggedIn(true);
-            navigate('/', { replace: true});
+            navigate('/'); //, { replace: true});
         }
     }, [login]);
 

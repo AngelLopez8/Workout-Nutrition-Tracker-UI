@@ -18,7 +18,7 @@ const SignUpForm = ({ setLoggedIn, setUser, check_if_existing_user}) => {
 
     useEffect( () => {
         if (check_if_existing_user()) {
-            navigate('/', { replace: true});
+            navigate('/'); //, { replace: true});
         }
     }, []);
 
@@ -26,7 +26,7 @@ const SignUpForm = ({ setLoggedIn, setUser, check_if_existing_user}) => {
         if (signedUp) {
             signUp();
             setLoggedIn(true);
-            navigate('/', { replace: true});
+            navigate('/'); //, { replace: true});
         }
     }, [signedUp]);
 

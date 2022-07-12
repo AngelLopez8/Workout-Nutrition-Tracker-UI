@@ -69,7 +69,7 @@ const App = () => {
                         />}
                     />
                     <Route 
-                        path="/login" 
+                        path={"/login"} 
                         element={<LoginForm 
                             setLoggedIn={setLoggedIn} 
                             setUser={setUser} 
@@ -77,7 +77,7 @@ const App = () => {
                         />} 
                     />
                     <Route 
-                        path="/signup" 
+                        path={"/signup"} 
                         element={<SignUpForm 
                             setLoggedIn={setLoggedIn} 
                             setUser={setUser} 
@@ -85,39 +85,12 @@ const App = () => {
                         />}
                     />
                     <Route 
-                        path="/profile" 
+                        path={"/profile"} 
                         element={<ProfileChangeForm
                             user={user}
                             setLoggedIn={setLoggedIn}
                             check_if_existing_user={check_if_existing_user}
                         />}
-                    />
-                    <Route
-                        path="/tiktok"
-                        element={
-                            <Container style={{
-                                left: 0,
-                                width: "100%",
-                                height: 500,
-                                position: "relative"
-                            }}>
-                                <iframe
-                                    style={{
-                                        top: 0,
-                                        left: 0,
-                                        width: "100%",
-                                        height: "100%",
-                                        position: "absolute",
-                                        border: 0
-                                    }}
-                                    src="https://www.tiktok.com/embed/7110361906304535850"
-                                    title="7110361906304535850"
-                                    allowFullScreen
-                                    scrolling="no"
-                                    allow="encrypted-media;"
-                                ></iframe>
-                            </Container>
-                        }
                     />
                 </Routes>
             </Router>

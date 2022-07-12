@@ -8,6 +8,8 @@ import axios from 'axios';
 
 import DEFAULT from './Images/DEFAULT.jpg';
 
+import ScheduleForm from './Forms/ScheduleForm.js';
+
 const DaysOfTheWeek = {
     1: "Sunday",
     2: "Monday",
@@ -25,15 +27,11 @@ const HomePage = ({ user, setUser, setLoggedIn, check_if_existing_user }) => {
     const [ todaysWorkout, setTodaysWorkout ] = useState({});
 
     const [ profileUpdate, setProfileUpdate ] = useState(false);
+    const [ selectCreateSchedule, setSelectCreateSchedule ] = useState(false);
     const [ logout, setLogout ] = useState(false);
 
     // // On Change to Use State
     useEffect( () => {
-
-        // if (!check_if_existing_user()) {
-        //     console.log("NO USER");
-        //     navigate('/login', { replace: true});
-        // }
 
         if (user._id && avatar === "") setAvatar(process.env.REACT_APP_API_URL+`user/me/avatar/${user._id}` || DEFAULT);
             
@@ -105,12 +103,27 @@ const HomePage = ({ user, setUser, setLoggedIn, check_if_existing_user }) => {
                         </>
                         : <></>
                     }
-                    <Button variant="outline-primary" onClick={ e=> { e.preventDefault(); setProfileUpdate(true);}}>Update Profile</Button>
+                    <Button variant="outline-primary" onClick={ e => { e.preventDefault(); setProfileUpdate(true);}}>Update Profile</Button>
                     {" "}
                     <Button variant="outline-warning" onClick={ e => { e.preventDefault(); setLogout(true); }}>Logout</Button>
                 </Col>
                 <Col>
                     <h1>Schedule and Progress</h1>
+                    { user.schedule ?
+                        <h1>I HAVE SCHEDULE</h1>
+                        :
+                        <>
+                            { selectCreateSchedule ?
+                                <ScheduleForm token={user.Authorization} setSelectCreateSchedul={setSelectCreateSchedule} />
+                                :
+                                <>
+                                    <h4>No Schedule exists.</h4>
+                                    <h4>Please Select/Create a Schedule.</h4>
+                                    <Button variant="outline-success" onClick={ e => { e.preventDefault(); setSelectCreateSchedule(true);}}>Select/Create Schedule</Button>
+                                </>
+                            }
+                        </>
+                    }
                 </Col>
             </Row>
         </Container>
