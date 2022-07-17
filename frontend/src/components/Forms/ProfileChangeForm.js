@@ -6,7 +6,7 @@ import axios from 'axios';
 
 import DEFAULT from '../Images/DEFAULT.jpg';
 
-const ProfileChangeForm = ({ user, setLoggedIn, check_if_existing_user }) => {
+const ProfileChangeForm = ({ user, setUser }) => {
     
     const navigate = useNavigate();
 
@@ -29,7 +29,6 @@ const ProfileChangeForm = ({ user, setLoggedIn, check_if_existing_user }) => {
         if (updated) {
             update_user();
             if (newAvatar !== '') update_avatar();
-            setLoggedIn(false);
             navigate('/', { replace: true});
         }
     }, [updated])
@@ -38,7 +37,6 @@ const ProfileChangeForm = ({ user, setLoggedIn, check_if_existing_user }) => {
         if (deleteUser) {
             window.localStorage.removeItem('Authorization');
             delete_user();
-            setLoggedIn(false);
             navigate('/login', { replace: true});
         }
     }, [deleteUser]);
@@ -47,7 +45,6 @@ const ProfileChangeForm = ({ user, setLoggedIn, check_if_existing_user }) => {
         if (logoutAll) {
             window.localStorage.removeItem('Authorization');
             logout_all_users();
-            setLoggedIn(false);
             navigate('/login', { replace: true});
         }
     }, [logoutAll]);
@@ -59,6 +56,7 @@ const ProfileChangeForm = ({ user, setLoggedIn, check_if_existing_user }) => {
                     Authorization: user.Authorization
                 }
             });
+            setUser({});
         } catch (err) {
             console.log(err);
         }
@@ -71,6 +69,7 @@ const ProfileChangeForm = ({ user, setLoggedIn, check_if_existing_user }) => {
                     Authorization: user.Authorization
                 }
             });
+            setUser({});
         } catch (err) {
             console.log(err);
         }
@@ -87,6 +86,7 @@ const ProfileChangeForm = ({ user, setLoggedIn, check_if_existing_user }) => {
                     Authorization: user.Authorization
                 }
             });
+            setUser({Authorization: user.Authorization});
         } catch (err) {
             console.log(err);
         }

@@ -4,7 +4,7 @@ import { Container, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 
-const SignUpForm = ({ setLoggedIn, setUser, check_if_existing_user}) => {
+const SignUpForm = ({ user, setUser }) => {
 
     const navigate = useNavigate();
     
@@ -17,16 +17,15 @@ const SignUpForm = ({ setLoggedIn, setUser, check_if_existing_user}) => {
     const [ signedUp, setSignedUp ] = useState(false);
 
     useEffect( () => {
-        if (check_if_existing_user()) {
-            navigate('/'); //, { replace: true});
+        if (user.Authorization) {
+            navigate('/', { replace: true});
         }
-    }, []);
+    }, [user]);
 
     useEffect( () => {
         if (signedUp) {
             signUp();
-            setLoggedIn(true);
-            navigate('/'); //, { replace: true});
+            navigate('/', { replace: true});
         }
     }, [signedUp]);
 

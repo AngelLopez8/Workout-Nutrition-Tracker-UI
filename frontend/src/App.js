@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -10,46 +10,34 @@ import SignUpForm from './components/Forms/SignUpForm';
 import ProfileChangeForm from './components/Forms/ProfileChangeForm';
 import HomePage from './components/HomePage';
 
-
 const App = () => {
 
     const [ user, setUser ] = useState({});
-    const [ loggedIn, setLoggedIn ] = useState(false);
 
+    // Inital Render
     useEffect( () => {
-        if (loggedIn) {
-            if (user.Authorization) get_user(user.Authorization);
-        } else {
-            if (check_if_existing_user()) {
-                get_user(window.localStorage.getItem('Authorization'));
-            }
-        }
-    }, [loggedIn]);
-
-    // useEffect( () => {
-    //     if (user.Authorization) console.log(user.Authorization);
-    //     if (user._id) console.log(user._id);
-    // }, [user]);
-
-    const check_if_existing_user = () => {
-        const loggedInUser = window.localStorage.getItem('Authorization');
+        const loggedInUser = window.localStorage.getItem("Authorization");
         if (loggedInUser) {
-            setLoggedIn(true);
-            return true;
-        } else {
-            setLoggedIn(false);
-            return false;
+            setUser({ Authorization: loggedInUser});
         }
-    }
+    }, []);
 
-    const get_user = async (token) => {
+    // On User State Update
+    useEffect( () => {
+        // If user is currently logged in but their data isn't retrieved, retrieve data
+        if (user.Authorization && !user._id) {
+            get_user();
+        }
+    }, [user]);
+
+    const get_user = async () => {
         try {
             const { data } = await axios.get(process.env.REACT_APP_API_URL+"user/me", {
                 headers: {
-                    Authorization: token
+                    Authorization: user.Authorization
                 }
             });
-            setUser({...data, Authorization: token});
+            setUser({...data, Authorization: user.Authorization});
         } catch (err) {
             console.log(err);
         }
@@ -60,37 +48,42 @@ const App = () => {
             <Router>
                 <Routes>
                     <Route 
-                        exact path="/" 
-                        element={<HomePage
-                            user={user}
-                            setUser={setUser}
-                            setLoggedIn={setLoggedIn}
-                            check_if_existing_user={check_if_existing_user}
-                        />}
+                        exact path="/"
+                        element= {
+                            !user.Authorization ? 
+                                <Navigate to="/login"/>
+                                :
+                                <HomePage
+                                    user={user}
+                                    setUser={setUser}
+                                />
+                        }
                     />
                     <Route 
-                        path={"/login"} 
-                        element={<LoginForm 
-                            setLoggedIn={setLoggedIn} 
-                            setUser={setUser} 
-                            check_if_existing_user={check_if_existing_user}
+                        path={"/login"}
+                        element={<LoginForm
+                            user={user}
+                            setUser={setUser}
                         />} 
                     />
                     <Route 
-                        path={"/signup"} 
-                        element={<SignUpForm 
-                            setLoggedIn={setLoggedIn} 
-                            setUser={setUser} 
-                            check_if_existing_user={check_if_existing_user}
+                        path={"/signup"}
+                        element={<SignUpForm
+                            user={user}
+                            setUser={setUser}
                         />}
                     />
                     <Route 
-                        path={"/profile"} 
-                        element={<ProfileChangeForm
-                            user={user}
-                            setLoggedIn={setLoggedIn}
-                            check_if_existing_user={check_if_existing_user}
-                        />}
+                        path={"/profile"}
+                        element={
+                            !user.Authorization ? 
+                                <Navigate to="/login"/>
+                                :
+                                <ProfileChangeForm
+                                    user={user}
+                                    setUser={setUser}
+                                />
+                        }
                     />
                 </Routes>
             </Router>

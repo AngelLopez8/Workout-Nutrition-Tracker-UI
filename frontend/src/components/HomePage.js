@@ -20,10 +20,9 @@ const DaysOfTheWeek = {
     7: "Saturday"
 };
 
-const HomePage = ({ user, setUser, setLoggedIn, check_if_existing_user }) => {
+const HomePage = ({ user, setUser }) => {
     const navigate = useNavigate();
 
-    const [ avatar, setAvatar ] = useState("");
     const [ todaysWorkout, setTodaysWorkout ] = useState({});
 
     const [ profileUpdate, setProfileUpdate ] = useState(false);
@@ -33,7 +32,7 @@ const HomePage = ({ user, setUser, setLoggedIn, check_if_existing_user }) => {
     // // On Change to Use State
     useEffect( () => {
 
-        if (user._id && avatar === "") setAvatar(process.env.REACT_APP_API_URL+`user/me/avatar/${user._id}` || DEFAULT);
+        if (!user.Authorization) navigate('/login', { replace:true });
             
         // On Change to the User State update today's Workout if exists
         if (user.schedule) {
@@ -67,7 +66,6 @@ const HomePage = ({ user, setUser, setLoggedIn, check_if_existing_user }) => {
                 }
             });
             setUser({});
-            setLoggedIn(false);
         } catch (err) {
             console.log(err);
         }
@@ -77,7 +75,14 @@ const HomePage = ({ user, setUser, setLoggedIn, check_if_existing_user }) => {
         <Container>
             <Row>
                 <Col>
-                    <Image src={avatar} thumbnail />
+                    <Image 
+                        thumbnail
+                        src={process.env.REACT_APP_API_URL+`user/me/avatar/${user._id}`} 
+                        onError={({ currentTarget }) => {
+                            currentTarget.onerror = null;
+                            currentTarget.src = DEFAULT;
+                        }}
+                    />
                 </Col>
                 <Col>
                     <h1>Today's Workout</h1>
@@ -110,11 +115,15 @@ const HomePage = ({ user, setUser, setLoggedIn, check_if_existing_user }) => {
                 <Col>
                     <h1>Schedule and Progress</h1>
                     { user.schedule ?
-                        <h1>I HAVE SCHEDULE</h1>
+                        <h3>{user.schedule.name}</h3>
                         :
                         <>
                             { selectCreateSchedule ?
-                                <ScheduleForm token={user.Authorization} setSelectCreateSchedul={setSelectCreateSchedule} />
+                                <ScheduleForm 
+                                    user={user} 
+                                    setUser={setUser} 
+                                    setSelectCreateSchedule={setSelectCreateSchedule} 
+                                />
                                 :
                                 <>
                                     <h4>No Schedule exists.</h4>
