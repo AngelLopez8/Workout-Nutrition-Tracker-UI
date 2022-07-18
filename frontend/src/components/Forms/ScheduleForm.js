@@ -124,7 +124,17 @@ const ScheduleCreateForm = ({ user, setCreateScheduleForm, createWorkoutForm, se
     }
 
     return (
-        <Container>
+        <Container
+            className='rounded bg-dark'
+            style={{
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                minWidth: '300px',
+                width: '50%'
+            }}
+        >
             <CloseButton onClick={ e => { e.preventDefault(); setCreateScheduleForm(false); }} />
             <Form>
                 <Form.Group className="mb-3" controlId="formScheduleName">
@@ -157,7 +167,8 @@ const ScheduleCreateForm = ({ user, setCreateScheduleForm, createWorkoutForm, se
                                                 );
                                             })
                                         }
-                                    </Form.Select> 
+                                    </Form.Select>
+                                    <br/>
                                 </Container>
                             );
                         })

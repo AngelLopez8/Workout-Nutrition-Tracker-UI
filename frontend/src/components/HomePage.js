@@ -8,6 +8,7 @@ import axios from 'axios';
 
 import DEFAULT from './Images/DEFAULT.jpg';
 
+import ScheduleInfo from './ScheduleInfo';
 import ScheduleForm from './Forms/ScheduleForm.js';
 
 const DaysOfTheWeek = {
@@ -42,6 +43,8 @@ const HomePage = ({ user, setUser }) => {
                     setTodaysWorkout(workout);
                 }
             });
+        } else {
+            setTodaysWorkout({});
         }
     }, [user]);
 
@@ -115,7 +118,7 @@ const HomePage = ({ user, setUser }) => {
                 <Col>
                     <h1>Schedule and Progress</h1>
                     { user.schedule ?
-                        <h3>{user.schedule.name}</h3>
+                        <ScheduleInfo user={user} setUser={setUser}/>
                         :
                         <>
                             { selectCreateSchedule ?

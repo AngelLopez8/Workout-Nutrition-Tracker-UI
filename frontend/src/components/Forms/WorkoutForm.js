@@ -52,7 +52,17 @@ const WorkoutSelectForm = ({ user, setCreateWorkoutForm, createExerciseForm, set
     }
 
     return (
-        <Container>
+        <Container
+            className='rounded bg-dark'
+            style={{
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                minWidth: '300px',
+                width: '50%',
+            }}
+        >
             <CloseButton onClick={ e => { e.preventDefault(); setCreateWorkoutForm(false); }} />
             <Form>
                 <Form.Group className="mb-3" controlId="formWorkoutName">
@@ -77,6 +87,7 @@ const WorkoutSelectForm = ({ user, setCreateWorkoutForm, createExerciseForm, set
                                         })
                                     }
                                 </Form.Select>
+                                <br/>
                             </Container>
                         );
                     })
