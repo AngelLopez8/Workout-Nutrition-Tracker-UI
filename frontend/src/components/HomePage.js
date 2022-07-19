@@ -11,6 +11,8 @@ import DEFAULT from './Images/DEFAULT.jpg';
 import ScheduleInfo from './ScheduleInfo';
 import ScheduleForm from './Forms/ScheduleForm.js';
 
+import ProgressInfo from './ProgressInfo.js';
+
 const DaysOfTheWeek = {
     1: "Sunday",
     2: "Monday",
@@ -26,6 +28,8 @@ const HomePage = ({ user, setUser }) => {
 
     const [ todaysWorkout, setTodaysWorkout ] = useState({});
 
+    const [ progresses, setProgresses ] = useState([]);
+
     const [ profileUpdate, setProfileUpdate ] = useState(false);
     const [ selectCreateSchedule, setSelectCreateSchedule ] = useState(false);
     const [ logout, setLogout ] = useState(false);
@@ -34,13 +38,17 @@ const HomePage = ({ user, setUser }) => {
     useEffect( () => {
 
         if (!user.Authorization) navigate('/login', { replace:true });
+
+        if (user._id) get_progresses();
             
         // On Change to the User State update today's Workout if exists
         if (user.schedule) {
             const today = new Date();
-            user.schedule.workouts.forEach( workout => {
-                if (workout.dayOfTheWeek === DaysOfTheWeek[today.getDay()]) {
-                    setTodaysWorkout(workout);
+            user.schedule.daysOfTheWeek.forEach( ( day, i) => {
+                console.log(`${day}`);
+                if (user.schedule.workouts[i]) console.log(`${user.schedule.workouts[i].name}`)
+                if (day === DaysOfTheWeek[today.getDay()]) {
+                    setTodaysWorkout(user.schedule.workouts[i]);
                 }
             });
         } else {
@@ -58,7 +66,21 @@ const HomePage = ({ user, setUser }) => {
             handle_logout();
             navigate('/login', { replace: true});
         }
-    }, [logout])
+    }, [logout]);
+
+    const get_progresses = async () => {
+        try {
+            const { data } = await axios.get(process.env.REACT_APP_API_URL+"progress", {
+                headers: {
+                    Authorization: user.Authorization
+                }
+            });
+            setProgresses(data);
+            // setUser({Authorization: user.Authorization});
+        } catch (err) {
+            console.log(err);
+        }
+    }
 
     // Logs User out and delete's authentication token from database through POST request
     const handle_logout = async () => {
@@ -106,8 +128,8 @@ const HomePage = ({ user, setUser }) => {
                         <>
                             <h5>Name: {user.name}</h5>
                             <h5>Age: {user.age}</h5>
-                            <h5>Weight: {user.weight}</h5>
-                            <h5>Height: {user.height}</h5>
+                            <h5>Height: {Math.floor(user.height / 12)} ft. {user.height % 12} in.</h5>
+                            <h5>Weight: {user.weight} lbs.</h5>
                         </>
                         : <></>
                     }
@@ -116,9 +138,9 @@ const HomePage = ({ user, setUser }) => {
                     <Button variant="outline-warning" onClick={ e => { e.preventDefault(); setLogout(true); }}>Logout</Button>
                 </Col>
                 <Col>
-                    <h1>Schedule and Progress</h1>
+                    <h1>Schedule</h1>
                     { user.schedule ?
-                        <ScheduleInfo user={user} setUser={setUser}/>
+                        <ScheduleInfo user={user} setUser={setUser} progresses={progresses} />
                         :
                         <>
                             { selectCreateSchedule ?
@@ -136,6 +158,8 @@ const HomePage = ({ user, setUser }) => {
                             }
                         </>
                     }
+                    <h1>Progress</h1>
+                    <ProgressInfo progresses={progresses} setProgresses={setProgresses} />
                 </Col>
             </Row>
         </Container>

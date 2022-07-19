@@ -35,6 +35,16 @@ const ScheduleSelectForm = ({ user, setUser, createScheduleForm, setSelectCreate
     const handle_select = async (e) => {
         e.preventDefault();
         try {
+            await axios.post(process.env.REACT_APP_API_URL+'progress', {
+                weight: user.weight,
+                height: user.height,
+                schedule: schedule,
+            }, {
+                headers: {
+                    Authorization: user.Authorization
+                }
+            });
+        
             await axios.patch(process.env.REACT_APP_API_URL+"user/me", {
                 schedule: schedule
             }, {

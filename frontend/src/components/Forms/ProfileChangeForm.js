@@ -14,7 +14,9 @@ const ProfileChangeForm = ({ user, setUser }) => {
     
     const [ name, setName ] = useState("");
     const [ email, setEmail ] = useState("");
-    const [ age, setAge ] = useState(null);    
+    const [ age, setAge ] = useState(null);
+    const [ height, setHeight ] = useState(0);
+    const [ weight, setWeight ] = useState(0);
     const [ newAvatar, setNewAvatar ] = useState('');
 
     const [ updated, setUpdated ] = useState(false);
@@ -80,7 +82,9 @@ const ProfileChangeForm = ({ user, setUser }) => {
             await axios.patch(process.env.REACT_APP_API_URL+"user/me", {
                 name: name === "" ? user.name : name,
                 email: email === "" ? user.email : email,
-                age: age === null ? user.age : age
+                age: age === null ? user.age : age,
+                height: height === 0 ? user.height : height,
+                weight: weight === 0 ? user.weight : weight,
             }, {
                 headers: {
                     Authorization: user.Authorization
@@ -116,24 +120,41 @@ const ProfileChangeForm = ({ user, setUser }) => {
                 }
                 <Form onSubmit={e => { e.preventDefault(); setUpdated(true); }}>
 
+                    {/* AVATAR FIELD */}
                     <Form.Group className='mb-3' controlId='formAvatar'>
                         <Form.Control type='file' onChange={ e => setNewAvatar(e.target.files[0]) } />
                     </Form.Group>
 
+                    {/* NAME FIELD */}
                     <Form.Group className='mb-3' controlId='formFullName'>
                         <Form.Label>Full Name</Form.Label>
                         <Form.Control type='text' placeholder={user.name ? user.name : 'Full Name'} onChange={ e => setName(e.target.value)} />
                     </Form.Group>
 
+                    {/* EMAIL FIELD */}
+                    <Form.Group className='mb-3' controlId='formEmail'>
+                        <Form.Label>Email Address</Form.Label>
+                        <Form.Control type='email' placeholder={user.email ? user.email : 'example@email.com'} onChange={ e => setEmail(e.target.value)} />
+                    </Form.Group>
+
+                    {/* AGE FIELD */}
                     <Form.Group className='mb-3' controlId='formAge'>
                         <Form.Label>Age</Form.Label>
                         <Form.Control type='text' placeholder={user.age ? user.age : 'Age'} onChange={ e => setAge(e.target.value)} />
                     </Form.Group>
 
-                    <Form.Group className='mb-3' controlId='formEmail'>
-                        <Form.Label>Email Address</Form.Label>
-                        <Form.Control type='email' placeholder={user.email ? user.email : 'example@email.com'} onChange={ e => setEmail(e.target.value)} />
+                    {/* HEIGHT FIELD */}
+                    <Form.Group className='mb-3' controlId='formHeight'>
+                        <Form.Label>Height</Form.Label>
+                        <Form.Control type='text' placeholder={user.height ? `${user.height} in.` : 'Height in in.'} onChange={ e => setHeight(e.target.value)} />
                     </Form.Group>
+
+                    {/* WEIGHT FIELD */}
+                    <Form.Group className='mb-3' controlId='formWeight'>
+                        <Form.Label>Weight</Form.Label>
+                        <Form.Control type='text' placeholder={user.weight ? `${user.weight} lbs.` : 'Weight in lbs.'} onChange={ e => setWeight(e.target.value)} />
+                    </Form.Group>
+                    
                     <Container className='text-center'>
                         <Button variant="outline-primary" type="submit">Update</Button>
                         {" "}
